@@ -1,14 +1,12 @@
 package fr.simplex_software.ecommerce.route;
 
-import fr.simplex_software.ecommerce.model.OrderItem;
-import fr.simplex_software.ecommerce.model.Shipment;
-import fr.simplex_software.ecommerce.processor.ShipmentAggregator;
-import org.apache.camel.builder.RouteBuilder;
+import fr.simplex_software.ecommerce.model.*;
+import fr.simplex_software.ecommerce.processor.*;
+import jakarta.enterprise.context.*;
+import jakarta.inject.*;
+import org.apache.camel.builder.*;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import java.util.List;
+import java.util.*;
 
 @ApplicationScoped
 public class ECommerceRoute extends RouteBuilder
@@ -21,6 +19,9 @@ public class ECommerceRoute extends RouteBuilder
   {
     // Main order processing route
     from("timer:orderGenerator?period=10000")
+      .routeId("orderProcessing")
+      // Route should be started/stopped via Hawtio
+      .autoStartup(false)
       .log("=== Processing new order ===")
       .process("orderGenerator")
       .log("Generated order: ${body}")
@@ -34,6 +35,7 @@ public class ECommerceRoute extends RouteBuilder
 
     // AGGREGATOR: Group items by supplier + shipping address
     from("direct:aggregateBySupplier")
+      .routeId("shipmentAggregation")
       .aggregate(simple("${body.aggregationKey}"))
       .aggregationStrategy("shipmentAggregator")
       .completionTimeout(5000)
@@ -51,6 +53,7 @@ public class ECommerceRoute extends RouteBuilder
 
     // Shipment processing
     from("direct:processShipment")
+      .routeId("shipmentProcessing")
       .choice()
       .when(simple("${body.totalValue} > 100"))
       .log("HIGH VALUE shipment (${body.totalValue}€) - Priority processing")

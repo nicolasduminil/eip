@@ -1,15 +1,11 @@
 package fr.simplex_software.ecommerce.processor;
 
-import fr.simplex_software.ecommerce.model.OrderItem;
-import fr.simplex_software.ecommerce.model.Shipment;
-import org.apache.camel.AggregationStrategy;
-import org.apache.camel.Exchange;
+import fr.simplex_software.ecommerce.model.*;
+import jakarta.enterprise.context.*;
+import jakarta.inject.*;
+import org.apache.camel.*;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @ApplicationScoped
 @Named("shipmentAggregator")
@@ -19,28 +15,21 @@ public class ShipmentAggregator implements AggregationStrategy
   public Exchange aggregate(Exchange oldExchange, Exchange newExchange)
   {
     OrderItem newItem = newExchange.getIn().getBody(OrderItem.class);
-
-    if (oldExchange == null)
-    {
-      List<OrderItem> items = new ArrayList<>();
-      items.add(newItem);
-      newExchange.getIn().setBody(items);
-      return newExchange;
-    }
-
     @SuppressWarnings("unchecked")
-    List<OrderItem> existingItems = oldExchange.getIn().getBody(List.class);
-    existingItems.add(newItem);
-
-    return oldExchange;
+    List<OrderItem> items = Optional.ofNullable(oldExchange)
+      .map(ex -> (List<OrderItem>) ex.getIn().getBody(List.class))
+      .orElse(new ArrayList<>());
+    items.add(newItem);
+    Exchange exchange = Optional.ofNullable(oldExchange).orElse(newExchange);
+    exchange.getIn().setBody(items);
+    return exchange;
   }
 
   public Shipment createShipment(List<OrderItem> items)
   {
-    if (items.isEmpty())
-      return null;
-
-    OrderItem firstItem = items.get(0);
-    return new Shipment(firstItem.supplierId(), firstItem.shippingAddress(), items);
+    return items.stream()
+      .findFirst()
+      .map(first -> new Shipment(first.supplierId(), first.shippingAddress(), items))
+      .orElse(null);
   }
 }
