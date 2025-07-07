@@ -18,8 +18,9 @@ read it again, from the beginning to end.
 I use to react to posts on this site recommending books, like *Clean Architecture*,
 published 8 years ago, which I consider outdated. It happened also to me recently to 
 advice against *Spring in Action*, published initially in 2019 and currently in
-its 6th edition since 2022. So, I'm not really a big fan of old books because in
-our field things are changing so fast, for the best and for the worst. But this
+its 6th edition, dated 2022. So, in 3 years, this book has been published 6 times !
+Which is to say that I'm not really a big fan of old books because, in
+our field, things are changing so fast, for the best and for the worst. But this
 book, published in 2003, is incredibly up to date.
 
 So, after reading it again more than 20 years later, I thought that I definitely need to 
