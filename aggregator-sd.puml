@@ -1,0 +1,7 @@
+@startuml
+OrderGenerator -> Order: Generate random order
+Order -> OrderSplitter: Split orders in order items
+OrderSplitter -> OrderItem: Individual order item
+OrderItem -> ShipmentAggregator: Aggregate individual items
+ShipmentAggregator -> Shipment: Ready to ship
+@enduml

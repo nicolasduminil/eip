@@ -86,11 +86,29 @@ An e-commerce platform processes orders that contain items from multiple supplie
 
 ### Architecture
 
+The diagram below shows the software architecture of the implementation. 
+
+![Aggregator](aggregator.png)
+
+Everything starts with the `OrderGenerator` processor which generates random test
+orders. These orders are instances of the `Order` record. They are generated on 
+time based frequency, one every 10 seconds, using the `timer` Camel component.
+
+Once generated, each order is split in a list of its corresponding `OrderItem` 
+instances, by the `OrderSplitter` Camel processor. After which, the individual 
+`OrderItem` instances are aggregated, based on their supplier ID and shipping 
+address, into instances of `Shipment`. This is the role of the `ShipmentAggregator`
+Camel processor which defines the aggregation strategy.
+
+Last but not least, the `Shipment` instances, ready to be delivered, are just 
+printed out in the Camel log file. In a real case, of course, they would have 
+been sent to a delivery channel.
+
 ### Flow
 
-```
-Order → Splitter → Individual Items → Aggregator → Optimized Shipments
-```
+The following sequence diagram is illustrating the implementation's flow:
+
+![Aggregator sequence diagram](aggregator-sd.png)
 
 ### Key Components
 
@@ -98,24 +116,128 @@ Order → Splitter → Individual Items → Aggregator → Optimized Shipments
 - **ShipmentAggregator**: Groups items by supplier + shipping address
 - **OrderGenerator**: Creates realistic sample orders
 
+The `OrderSplitter` class implements the `Processor` Camel interface and, in 
+its `process(Exchange exchange)` method, it splits an `Order` instance, passed as
+an input message, to its corresponding `OrderItem` instances list.
+
+Here is the source code:
+
+    @ApplicationScoped
+    @Named("orderSplitter")
+    public class OrderSplitter implements Processor
+    {
+      @Override
+      public void process(Exchange exchange) throws Exception
+      {
+        Order order = exchange.getIn().getBody(Order.class);
+        List<OrderItem> enrichedItems = order.items().stream()
+          .map(item -> item.withOrderContext(order.orderId(), 
+            order.shippingAddress()))
+          .toList();
+        exchange.getIn().setBody(enrichedItems);
+      }
+    }
+
+As for the `ShipmentAggregator`, it performs the complementary operation of 
+grouping the individual `OrderItem` instances, issued from the splitting process,
+using an aggregation key which consist in the concatenation of the supplier ID 
+and the shipment address.
+
+    @ApplicationScoped
+    @Named("shipmentAggregator")
+    public class ShipmentAggregator implements AggregationStrategy
+    {
+      @Override
+      public Exchange aggregate(Exchange oldExchange, Exchange newExchange)
+      {
+        OrderItem newItem = newExchange.getIn().getBody(OrderItem.class);
+        @SuppressWarnings("unchecked")
+        List<OrderItem> items = Optional.ofNullable(oldExchange)
+          .map(ex -> (List<OrderItem>) ex.getIn().getBody(List.class))
+          .orElse(new ArrayList<>());
+        items.add(newItem);
+        Exchange exchange = Optional.ofNullable(oldExchange)
+          .orElse(newExchange);
+        exchange.getIn().setBody(items);
+        return exchange;
+      }
+
+      public Shipment createShipment(List<OrderItem> items)
+      {
+        return items.stream()
+         .findFirst()
+         .map(first -> new Shipment(first.supplierId(), first.shippingAddress(), items))
+         .orElse(null);
+      }
+    }
+
+The code above accumulates `OrderItems` instances, having the same aggregation 
+key, into a single list. It accepts two input arguments: 
+
+  - the `oldExchange` which represents the current state accumulated from previous aggregations; it is null initially;
+  - the `newExchange` containing the incoming message;
+
+The `oldExchange` argument is checked for the null value, i.e. no previous 
+accumulation exists and, then, a new item list is instantiated. Otherwise, if
+the `oldExchange` isn't null, then the list of the previously accumulated 
+`OrderItem` is extracted from it and the new `OrderItem` instance is added to 
+it from the `newExchange` argument.
+
 ### Business Value
+
 - **Cost Reduction**: Fewer shipments per supplier
 - **Efficiency**: Consolidated deliveries
 - **Scalability**: Handles multiple suppliers automatically
 
 ### Running the Application
 
+In order to run the application, perform the following steps:
+
 ```bash
-mvn quarkus:dev
+$ git clone https://github.com/nicolasduminil/eip.git
+$ cd eip
+$ mvn package
+$ java -jar aggregator/target/quarkus-app/quarkus-run.jar
 ```
 
-The application will:
-- Generate sample orders every 10 seconds
-- Split orders by supplier
-- Aggregate items into optimized shipments
-- Log the entire process
+Now the application is up and running. It will:
+  - Generate sample orders every 10 seconds
+  - Split orders by supplier
+  - Aggregate items into optimized shipments
+  - Log the entire process
+
+The route labeled `orderProcessing`, which triggers the whole flow, is declared
+with `autoStartup(false)` in the `ECommerceRoute` class. This means that it won't
+be started automatically but, in order to give you full control, it should be 
+handled via the Hawtio console. The following Maven dependency:
+
+    ...
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-quarkus</artifactId>
+      <version>4.4.1</version>
+    </dependency>
+    ...
+
+includes the Hawtio console in your application JAR. Then by fireing your prefered
+browser at http://localhost:8080/hawtio, you'll see something similar to the 
+picture below:
+
+![Hawtio console](hawtio.png)
+
+Now, go to `Camel->Routes->orderProcessing` and, in the right most pane, select
+the tab labeled `Operations`. Then scrool down until you see the method 
+`void start()`. Unfold it and click the red button `Execute`. The message `Operation
+successful` should be displayed and the route will start. You can tell that as
+your Camel log file will show trace messages.
+
+Executing the `String getState()` method will show that the route is active. 
+Whenever you think that you finished experiencing with th use case, you can 
+execute the method `void stop()` and the process will terminate. Don't hesitate
+to play with different operations exposed here, in the Hawtio console.
 
 ### Sample Output
+
 ```
 === Processing new order ===
 Generated order: Order{orderId='ORD-123', customerId='CUST-456', items=5}
@@ -126,6 +248,7 @@ HIGH VALUE shipment (250.50€) - Priority processing
 ```
 
 ### Key Patterns Demonstrated
+
 - **Splitter Pattern**: `split(body())` breaks orders into items
 - **Aggregator Pattern**: Groups by `aggregationKey` (supplier + address)
 - **Content-Based Router**: Routes high-value shipments differently

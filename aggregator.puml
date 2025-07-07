@@ -1,0 +1,16 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/EIP-PlantUML/main/dist/EIP-PlantUML.puml
+LAYOUT_LEFT_RIGHT()
+ComposedMessageProcessor(orderGenerator, "Order generator")
+Message(msgOrder, "Order")
+Send(orderGenerator, msgOrder)
+Splitter(splitter, "Split order items")
+Send(msgOrder, splitter)
+Message(msgOrderItem, "Order item")
+Send(splitter, msgOrderItem)
+Aggregator(aggregator, "Aggregate individual items")
+Send(msgOrderItem, aggregator)
+Message(msgBySupplier, "Aggregate by supplier")
+Send(aggregator, msgBySupplier)
+
+@enduml
