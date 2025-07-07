@@ -18,10 +18,14 @@ read it again, from the beginning to end.
 I use to react to posts on this site recommending books, like *Clean Architecture*,
 published 8 years ago, which I consider outdated. It happened also to me recently to 
 advice against *Spring in Action*, published initially in 2019 and currently in
-its 6th edition, dated 2022. So, in 3 years, this book has been published 6 times !
-Which is to say that I'm not really a big fan of old books because, in
-our field, things are changing so fast, for the best and for the worst. But this
-book, published in 2003, is incredibly up to date.
+its 6th edition, dated 2022. So, this book has been published 6 times in 3 years !
+Which wasn't obviously enough to cover its full spectrum as it still lacks lots
+of topics.
+
+Anyway, if I'm dwelling on this subject here, this is to say that I'm not really
+a big fan of old books because, in our field, things are changing so fast, for 
+the best and for the worst. But this EIP book, published in 2003, is incredibly
+up to date.
 
 So, after reading it again more than 20 years later, I thought that I definitely need to 
 contribute somehow to promote these EIPs which, in my opinion, represent the most
@@ -37,7 +41,7 @@ would have been "likely to never finish or else to be published so late as to
 be irrelevant". 
 
 It's valuable to see the authors' concern to avoid a possible irrelevance of their
-work, due to a too late publishing date, but they may at ease that this isn't 
+work, due to a too late publishing date, but they may be at ease that this isn't 
 the case, even today, more than 20 years after. And since, in any case, a 
 technology-agnostic implementation would be neither possible, nor useful, I 
 choose the one and only Java based enterprise grade integration platform: 
