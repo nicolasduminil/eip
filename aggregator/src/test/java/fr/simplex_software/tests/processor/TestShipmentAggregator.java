@@ -1,6 +1,7 @@
-package fr.simplex_software.ecommerce.processor;
+package fr.simplex_software.tests.processor;
 
 import fr.simplex_software.ecommerce.model.*;
+import fr.simplex_software.ecommerce.processor.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultExchange;

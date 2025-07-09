@@ -1,16 +1,12 @@
 package fr.simplex_software.ecommerce.processor;
 
-import fr.simplex_software.ecommerce.model.Order;
-import fr.simplex_software.ecommerce.model.OrderItem;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import fr.simplex_software.ecommerce.model.*;
+import jakarta.enterprise.context.*;
+import jakarta.inject.*;
+import org.apache.camel.*;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Random;
+import java.math.*;
+import java.util.*;
 
 @ApplicationScoped
 @Named("orderGenerator")

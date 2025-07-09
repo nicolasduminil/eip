@@ -1,4 +1,4 @@
-package fr.simplex_software.ecommerce.route;
+package fr.simplex_software.tests.route;
 
 import fr.simplex_software.ecommerce.model.*;
 import io.quarkus.test.junit.*;

@@ -257,3 +257,52 @@ HIGH VALUE shipment (250.50€) - Priority processing
 - **Splitter Pattern**: `split(body())` breaks orders into items
 - **Aggregator Pattern**: Groups by `aggregationKey` (supplier + address)
 - **Content-Based Router**: Routes high-value shipments differently
+
+## The Canonical Data Model
+
+This project demonstrates how to implement a simple, yet realistic, business case
+that uses the Canonical Data Model enterprise pattern.
+
+### Scenario
+
+An online marketplace aggregates products from multiple suppliers with different
+data formats:
+
+  - Supplier A (Electronics): JSON format with nested specifications.
+  - Supplier B (Fashion): XML format with size/color variants.
+  - Supplier C (Books): CSV format with ISBN/author details.
+
+All supplier formats are transformed to a canonical `Product` model for unified
+catalog management, search, and display.
+
+#### Sample Data Format for Supplier A
+
+This supplier uses JSON as the data format.
+
+    {
+      "item_id": "ELEC001",
+      "name": "Gaming Laptop",
+      "cost": 1299.99,
+      "specs": {"cpu": "Intel i7", "ram": "16GB"}
+    }
+
+#### Sample Data Format for Supplier B
+
+This supplier uses XML as the data format.
+
+    <product>
+      <sku>FASH002</sku>
+      <title>Designer Jacket</title>
+      <price>299.50</price>
+      <variants>
+        <variant size="M" color="Blue"/>
+      </variants>
+    </product>
+
+#### Sample Data Format for Supplier C
+
+This supplier uses CSV as the data format.
+
+    isbn,book_title,author,retail_price
+    978-0134685991,Effective Java,Joshua Bloch,45.99
+
