@@ -1,0 +1,7 @@
+@startuml
+BookProductGenerator <|-- ProductGenerator
+ElectronicsProductGenerator <|-- ProductGenerator
+FashionProductGenerator <|-- ProductGenerator
+ProductGeneratorProcessor <|-- org.apache.camel.Processor
+@enduml
+

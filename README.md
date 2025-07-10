@@ -347,6 +347,55 @@ The following sequence diagram is illustrating the implementation's flow:
 
 ![Canonical model sequence diagram](canonical-sd.png)
 
+### Key Components
+
+  - **Generators**. A set of generators are available in order to generate test data. They generate data in a supplier specific format, i.e. JSON for the Supplier A, XML for the supplier B and CSV for the supplier C. They all implement the `ProductGenerator` interface. See the class diagram below:
+
+![Canonical model generators class diagram](canonical-generator-cd.png)
+
+  - **Transformers**. A set of transformers responsible for mapping the specific data model to the canonical one. See the class diagram below:
+
+![Canonical model transformers class diagram](canonical-transformer-cd.png)
+
+  - **BookProduct**. A record modeling a Supplier C specific product representation.
+  - **ElectronicsProduct**. A record modeling a Supplier A specific product representation.
+  - **FashionProduct**. A record modeling a Supplier B specific product representation.
+  - **Product**. A record modeling a canonical product representation.
+  - **ProductCatalogRoute**. The Camel main route. Its listing is shown below:
+
+
+    @ApplicationScoped
+    public class ProductCatalogRoute extends RouteBuilder
+    {
+      @Override
+      public void configure() throws Exception
+      {
+        from("timer:generator?period=15000")
+         .routeId("dataGenerationRoute")
+         .autoStartup(false)
+         .process("productGenerator")
+         .to("direct:processProduct");
+       from("direct:processProduct")
+        .routeId("dataProcessingRoute")
+        .choice()
+          .when(header("supplierType").isEqualTo("ELECTRONICS"))
+            .unmarshal().json(JsonLibrary.Jackson, ElectronicsProduct.class)
+            .process("electronicsTransformer")
+          .when(header("supplierType").isEqualTo("FASHION"))
+            .unmarshal().jacksonXml(FashionProduct.class)
+            .process("fashionTransformer")
+          .when(header("supplierType").isEqualTo("BOOKS"))
+            .unmarshal().csv()
+            .process("csvToBookTransformer")
+            .process("bookTransformer")
+        .end()
+        .to("log:canonical-product?showBody=true");
+      }
+    }
+
+
+
+
 
 ### Sample output
 

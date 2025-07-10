@@ -1,0 +1,8 @@
+@startuml
+abstract class ProductTransformer
+org.apache.camel.Processor <|-- ProductTransformer
+ProductTransformer <|-- BookTransformer
+ProductTransformer <|-- ElectronicsTransformer
+ProductTransformer <|-- FashionTransformer
+ProductTransformer <|-- CsvToBookTransformer
+@enduml
