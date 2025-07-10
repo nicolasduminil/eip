@@ -11,10 +11,13 @@ public class ProductCatalogRoute extends RouteBuilder
   @Override
   public void configure() throws Exception
   {
-    from("timer:electronics?period=15000")
-      .routeId("productCatalogRoute")
+    from("timer:generator?period=15000")
+      .routeId("dataGenerationRoute")
       .autoStartup(false)
       .process("productGenerator")
+      .to("direct:processProduct");
+    from("direct:processProduct")
+      .routeId("dataProcessingRoute")
       .choice()
         .when(header("supplierType").isEqualTo("ELECTRONICS"))
           .unmarshal().json(JsonLibrary.Jackson, ElectronicsProduct.class)
@@ -24,6 +27,7 @@ public class ProductCatalogRoute extends RouteBuilder
           .process("fashionTransformer")
         .when(header("supplierType").isEqualTo("BOOKS"))
           .unmarshal().csv()
+          .process("csvToBookTransformer")
           .process("bookTransformer")
       .end()
       .to("log:canonical-product?showBody=true");

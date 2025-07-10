@@ -15,7 +15,7 @@ public class ElectronicsProductGenerator implements ProductGenerator
   {
     return """
       {
-        "item_id": "ELEC001",
+        "itemId": "ELEC001",
         "name": "Gaming Laptop",
         "cost": 1299.99,
         "specs": {"cpu": "Intel i7", "ram": "16GB"}

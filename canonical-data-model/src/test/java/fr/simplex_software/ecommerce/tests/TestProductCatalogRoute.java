@@ -2,29 +2,34 @@ package fr.simplex_software.ecommerce.tests;
 
 import fr.simplex_software.ecommerce.model.*;
 import io.quarkus.test.junit.*;
-import org.apache.camel.builder.*;
-import org.apache.camel.quarkus.test.*;
+import jakarta.inject.*;
+import org.apache.camel.*;
 import org.junit.jupiter.api.*;
-
-import java.math.*;
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class TestProductCatalogRoute extends CamelQuarkusTestSupport
+public class TestProductCatalogRoute //extends CamelQuarkusTestSupport
 {
+  @Inject
+  CamelContext camelContext;
+  @Inject
+  ProducerTemplate producerTemplate;
+
   @Test
-  void testTransformElectronicsProduct() throws Exception
+  public void testTransformElectronicsProduct() throws Exception
   {
-    ElectronicsProduct electronics = new ElectronicsProduct(
-      "ELEC001", "Gaming Laptop",
-      new BigDecimal("1299.99"),
-      Map.of("cpu", "Intel i7")
-    );
-    Product result = template.requestBodyAndHeader(
-      "direct:test-electronics",
-      electronics,
+    String electronicsProduct = """
+      {
+        "itemId": "ELEC001",
+        "name": "Gaming Laptop",
+        "cost": 1299.99,
+        "specs": {"cpu": "Intel i7", "ram": "16GB"}
+      }
+      """;
+    Product result = producerTemplate.requestBodyAndHeader(
+      "direct:processProduct",
+      electronicsProduct,
       "supplierType", SupplierType.ELECTRONICS,
       Product.class
     );
@@ -34,15 +39,12 @@ public class TestProductCatalogRoute extends CamelQuarkusTestSupport
   }
 
   @Test
-  void testTransformBookProduct() throws Exception
+  public void testTransformBookProduct() throws Exception
   {
-    BookProduct book = new BookProduct(
-      "978-0134685991", "Effective Java",
-      "Joshua Bloch", new BigDecimal("45.99")
-    );
-    Product result = template.requestBodyAndHeader(
-      "direct:test-books",
-      book,
+    String bookProduct = "978-0134685991,Effective Java,Joshua Bloch,45.99";
+    Product result = producerTemplate.requestBodyAndHeader(
+      "direct:processProduct",
+      bookProduct,
       "supplierType", SupplierType.BOOKS,
       Product.class
     );
@@ -51,20 +53,27 @@ public class TestProductCatalogRoute extends CamelQuarkusTestSupport
     assertEquals("SUPPLIER_C", result.supplierId());
   }
 
-  @Override
-  protected RouteBuilder createRouteBuilder()
+  @Test
+  public void testTransformFashionProduct()
   {
-    return new RouteBuilder()
-    {
-      @Override
-      public void configure()
-      {
-        from("direct:test-electronics")
-          .process("electronicsTransformer");
-
-        from("direct:test-books")
-          .process("bookTransformer");
-      }
-    };
+    String fashionProduct = """
+      <product>
+        <sku>FASH002</sku>
+        <title>Designer Jacket</title>
+        <price>299.50</price>
+        <variants>
+          <variant size="M" color="Blue"/>
+        </variants>
+      </product>
+      """;
+    Product result = producerTemplate.requestBodyAndHeader(
+      "direct:processProduct",
+      fashionProduct,
+      "supplierType", SupplierType.FASHION,
+      Product.class
+    );
+    assertEquals("FASH002", result.id());
+    assertEquals("Fashion", result.category());
+    assertEquals("SUPPLIER_B", result.supplierId());
   }
 }

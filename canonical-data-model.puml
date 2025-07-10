@@ -1,0 +1,26 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/EIP-PlantUML/main/dist/EIP-PlantUML.puml
+LAYOUT_LEFT_RIGHT()
+ComposedMessageProcessor(productGenerator, "Product Generator")
+Message(msgElectronics, "Electronics Order")
+Message(msgFashion, "Fashion Order")
+Message(msgBooks, "Books Order")
+Send(productGenerator, msgElectronics)
+Send(productGenerator, msgFashion)
+Send(productGenerator, msgBooks)
+MessageRouter(contentRouter, "Content-Based Router")
+MessageTranslator(electronicsTransformer, "Electronics Transformer")
+MessageTranslator(fashionTransformer, "Fashion Transformer")
+MessageTranslator(bookTransformer, "Book Transformer")
+MessageEndpoint(canonicalOutput, "Canonical Product")
+Send(msgElectronics, contentRouter)
+Send(msgFashion, contentRouter)
+Send(msgBooks, contentRouter)
+Send(contentRouter, electronicsTransformer)
+Send(contentRouter, fashionTransformer)
+Send(contentRouter, bookTransformer)
+Send(electronicsTransformer, canonicalOutput)
+Send(fashionTransformer, canonicalOutput)
+Send(bookTransformer, canonicalOutput)
+
+@enduml

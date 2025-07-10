@@ -306,3 +306,55 @@ This supplier uses CSV as the data format.
     isbn,book_title,author,retail_price
     978-0134685991,Effective Java,Joshua Bloch,45.99
 
+### Architecture
+
+The diagram below shows the software architecture of the implementation:
+
+![Canonical Data Model](canonical-data-model.png)
+
+Everything starts with the `ProductGeneratorProcessor` which generates random 
+test products in JSON, XML or CSV notation. So, supplier A provides
+electronics products in JSON format, supplier B fashion ones in XML format, as for
+the supplier C, they provide books in CSV format.
+
+The messages are generated on a time based frequency, one every 15 seconds, using
+the `timer` Camel component. Once generated, these messages are passed to a CBR
+(*Content Based Router*) which marshals each payload to its 
+Java corresponding record type, as follows:
+
+  - JSON messages, coming from the Supplier A, are marshaled to instances of `ElectronicsProduct` record type;
+  - XML messages, coming from the supplier B, are marshaled to instances of `FashionProduct` record type;
+  - CSV messages, coming from the supplier C, are marsheled to instances of `BookProduct` record type.
+
+These Java record instances are further processed by dedicated processors, as 
+follows:
+
+  - `ElectricsProduct` instances are trasformed by the `ElectronicsTransformer` processor to `Product` canonical instances;
+  - `FashionProduct` instances are transformed by the `FashionTransformer` processor to canonical `Product` instances;
+  - `BookProduct` instances are transformed by the `BookTransformer` processor to canonical `Product` instances.
+
+All these processors are subclasses of the abstarct class `ProductTransformer` 
+which implements the transformation general strategy, while bein specialized 
+by each concrete subclass.
+
+Last but not least, the `Product` instances, ready to be shipped, are just
+printed out in the Camel log file. In a real case, of course, they would have
+been sent to a delivery channel.
+
+### Flow
+
+The following sequence diagram is illustrating the implementation's flow:
+
+![Canonical model sequence diagram](canonical-sd.png)
+
+
+### Sample output
+
+    ... Body: Product[id=ELEC001, name=Gaming Laptop, price=1299.99, category=Electronics, attributes={specifications={cpu=Intel i7, ram=16GB}}, supplierId=SUPPLIER_A]]
+    ... Body: Product[id=FASH002, name=Designer Jacket, price=299.50, category=Fashion, attributes={variants=[Variant[size=M, color=Blue]]}, supplierId=SUPPLIER_B]]
+    ... Body: Product[id=ELEC001, name=Gaming Laptop, price=1299.99, category=Electronics, attributes={specifications={cpu=Intel i7, ram=16GB}}, supplierId=SUPPLIER_A]]
+    ... Body: Product[id=FASH002, name=Designer Jacket, price=299.50, category=Fashion, attributes={variants=[Variant[size=M, color=Blue]]}, supplierId=SUPPLIER_B]]
+    ... Body: Product[id=FASH002, name=Designer Jacket, price=299.50, category=Fashion, attributes={variants=[Variant[size=M, color=Blue]]}, supplierId=SUPPLIER_B]]
+    ... Body: Product[id=978-0134685991, name=Effective Java, price=45.99, category=Books, attributes={author=Joshua Bloch}, supplierId=SUPPLIER_C]]
+    ... Body: Product[id=FASH002, name=Designer Jacket, price=299.50, category=Fashion, attributes={variants=[Variant[size=M, color=Blue]]}, supplierId=SUPPLIER_B]]
+

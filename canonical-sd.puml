@@ -1,0 +1,15 @@
+@startuml
+ProductGeneratorProcessor -> Electronics: JSON
+ProductGeneratorProcessor -> Fashion: XML
+ProductGeneratorProcessor -> Books: JCSV
+Electronics -> CBR
+Fashion -> CBR
+Books -> CBR
+CBR -> ElectronicsTransformer: ElectronicProduct
+CBR -> FashionTransformer: FashionProduct
+CBR -> BookTransformer: BookProduct
+ElectronicsTransformer -> LOG: Product
+FashionTransformer -> LOG: Product
+BookTransformer -> LOG: Product
+
+@enduml
