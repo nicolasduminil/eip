@@ -363,6 +363,8 @@ The following sequence diagram is illustrating the implementation's flow:
   - **Product**. A record modeling a canonical product representation.
   - **ProductCatalogRoute**. The Camel main route. Its listing is shown below:
 
+Here below is the listing of the `ProductCatalogRoute` class which defines the 
+Camel routes required by our implementation. 
 
     @ApplicationScoped
     public class ProductCatalogRoute extends RouteBuilder
