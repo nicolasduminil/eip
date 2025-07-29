@@ -393,10 +393,6 @@ The following sequence diagram is illustrating the implementation's flow:
       }
     }
 
-
-
-
-
 ### Sample output
 
     ... Body: Product[id=ELEC001, name=Gaming Laptop, price=1299.99, category=Electronics, attributes={specifications={cpu=Intel i7, ram=16GB}}, supplierId=SUPPLIER_A]]
