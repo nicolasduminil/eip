@@ -405,3 +405,16 @@ Camel routes required by our implementation.
     ... Body: Product[id=978-0134685991, name=Effective Java, price=45.99, category=Books, attributes={author=Joshua Bloch}, supplierId=SUPPLIER_C]]
     ... Body: Product[id=FASH002, name=Designer Jacket, price=299.50, category=Fashion, attributes={variants=[Variant[size=M, color=Blue]]}, supplierId=SUPPLIER_B]]
 
+## The Content Enricher
+
+This demonstrates the Content Enricher pattern beautifully - progressively adding data from external sources while maintaining clean separation of concerns between:
+
+Lookup services (fetch enrichment data)
+
+Aggregation strategies (merge original + enrichment data)
+
+Route orchestration (coordinate the enrichment flow)
+
+Your implementation now shows a realistic e-commerce scenario where orders are enriched with customer and product information before processing - exactly what the Content Enricher EIP is designed for.
+
+Great work getting through the CDI bean discovery challenges! The @Produces method approach is the right pattern for exposing dependency beans in Quarkus.

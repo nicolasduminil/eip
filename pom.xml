@@ -11,6 +11,7 @@
   <modules>
     <module>aggregator</module>
     <module>canonical-data-model</module>
+    <module>content-enricher</module>
   </modules>
   <properties>
     <maven.compiler.source>21</maven.compiler.source>

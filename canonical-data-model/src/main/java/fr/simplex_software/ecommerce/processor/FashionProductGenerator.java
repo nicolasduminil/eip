@@ -24,6 +24,6 @@ public class FashionProductGenerator implements ProductGenerator
   @Override
   public SupplierType getSupplierType()
   {
-    return SupplierType.FASHION;
+    return null;
   }
 }
