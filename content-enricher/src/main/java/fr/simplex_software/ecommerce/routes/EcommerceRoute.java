@@ -4,8 +4,7 @@ import fr.simplex_software.ecommerce.processor.*;
 import jakarta.enterprise.context.*;
 import jakarta.inject.*;
 import org.apache.camel.builder.*;
-
-import static org.apache.camel.builder.AggregationStrategies.*;
+import org.apache.camel.spi.annotations.*;
 
 @ApplicationScoped
 public class EcommerceRoute extends RouteBuilder
@@ -24,8 +23,8 @@ public class EcommerceRoute extends RouteBuilder
       .routeId("contentEnricherDemo")
       .autoStartup(false)
       .process(orderGenerator)
-      .enrich("direct:getCustomerDetails", customerEnrichmentStrategy)
       .enrich("direct:getProductDetails", productEnrichmentStrategy)
+      .enrich("direct:getCustomerDetails", customerEnrichmentStrategy)
       .log("=== ENRICHED ORDER ===")
       .log("${body}")
       .to("log:content-enricher");

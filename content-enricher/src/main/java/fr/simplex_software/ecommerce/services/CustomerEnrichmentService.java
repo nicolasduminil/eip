@@ -5,6 +5,8 @@ import jakarta.enterprise.context.*;
 import jakarta.inject.*;
 import org.apache.camel.*;
 
+import java.util.*;
+
 @ApplicationScoped
 @Named("customerEnrichmentService")
 public class CustomerEnrichmentService implements Processor
@@ -12,11 +14,11 @@ public class CustomerEnrichmentService implements Processor
   @Override
   public void process(Exchange exchange) throws Exception
   {
-    CustomerDetails customer = new CustomerDetails(
+    CustomerDetails customerDetails = new CustomerDetails(
       "John Doe",
       "john@example.com",
       "GOLD"
     );
-    exchange.getIn().setBody(customer);
+    exchange.getIn().setBody(customerDetails);
   }
 }

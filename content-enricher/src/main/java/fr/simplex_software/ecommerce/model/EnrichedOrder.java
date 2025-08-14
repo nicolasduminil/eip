@@ -4,32 +4,20 @@ import java.time.*;
 import java.util.*;
 
 public record EnrichedOrder(
-  Order order,
+  String orderId,
+  String customerId,
+  String shippingAddress,
+  LocalDateTime orderDate,
   CustomerDetails customerDetails,
   List<EnrichedOrderItem> enrichedItems)
 {
-  public String orderId()
+  public EnrichedOrder withEnrichedItems(List<EnrichedOrderItem> enrichedItems)
   {
-    return order.orderId();
+    return new EnrichedOrder(orderId, customerId, shippingAddress, orderDate, customerDetails, enrichedItems);
   }
 
-  public String customerId()
+  public EnrichedOrder withCustomerDetails(CustomerDetails customerDetails)
   {
-    return order.customerId();
-  }
-
-  public String shippingAddress()
-  {
-    return order.shippingAddress();
-  }
-
-  public LocalDateTime orderDate()
-  {
-    return order.orderDate();
-  }
-
-  public List<OrderItem> orderItems()
-  {
-    return order.items();
+    return new EnrichedOrder(orderId, customerId, shippingAddress, orderDate, customerDetails, enrichedItems);
   }
 }

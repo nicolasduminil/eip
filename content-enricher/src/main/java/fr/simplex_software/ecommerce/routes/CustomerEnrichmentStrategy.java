@@ -14,13 +14,9 @@ public class CustomerEnrichmentStrategy implements AggregationStrategy
   @Override
   public Exchange aggregate(Exchange original, Exchange enrichment)
   {
-    Order order = original.getIn().getBody(Order.class);
-    CustomerDetails customer = enrichment.getIn().getBody(CustomerDetails.class);
-    List<EnrichedOrderItem> enrichedItems = order.items().stream()
-      .map(orderItem -> new EnrichedOrderItem(orderItem, null))
-      .toList();
-    EnrichedOrder enrichedOrder = new EnrichedOrder(order, customer, enrichedItems);
-    original.getIn().setBody(enrichedOrder);
+    EnrichedOrder enrichedOrder = original.getIn().getBody(EnrichedOrder.class);
+    CustomerDetails customerDetails = enrichment.getIn().getBody(CustomerDetails.class);
+    original.getIn().setBody(enrichedOrder.withCustomerDetails(customerDetails));
     return original;
   }
 }
