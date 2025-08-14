@@ -8,8 +8,8 @@ import org.apache.camel.*;
 import java.util.*;
 
 @ApplicationScoped
-@Named("customerEnrichmentStrategy")
-public class CustomerEnrichmentStrategy implements AggregationStrategy
+@Named("orderEnrichmentStrategy")
+public class OrderEnrichmentStrategy implements AggregationStrategy
 {
   @Override
   public Exchange aggregate(Exchange original, Exchange enrichment)

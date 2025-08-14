@@ -8,8 +8,8 @@ import org.apache.camel.*;
 import java.util.*;
 
 @ApplicationScoped
-@Named("customerEnrichmentService")
-public class CustomerEnrichmentService implements Processor
+@Named("orderEnrichmentService")
+public class OrderEnrichmentService implements Processor
 {
   @Override
   public void process(Exchange exchange) throws Exception
