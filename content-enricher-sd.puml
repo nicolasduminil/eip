@@ -1,0 +1,11 @@
+@startuml
+OrderGeneratorProcessor -> EcommerceRoute: Order
+EcommerceRoute -> OrderEnrichmentService: Order
+OrderEnrichmentService -> EcommerceRoute: Enrichment Data
+EcommerceRoute -> OrderEnrichmentStrategy: Order + Enrichment Data
+OrderEnrichmentStrategy -> EcommerceRoute: EnrichedOrder
+EcommerceRoute -> OrderItemEnrichmentService: EnrichedOrder
+OrderItemEnrichmentService -> EcommerceRoute: Enrichment Data
+EcommerceRoute -> OrderItemEnrichmentStrategy: EnrichedOrder + Enrichment Data
+OrderItemEnrichmentStrategy -> EcommerceRoute: EnrichedOrder with EnrichedOrderItems
+@enduml

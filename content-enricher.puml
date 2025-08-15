@@ -1,0 +1,21 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/EIP-PlantUML/main/dist/EIP-PlantUML.puml
+LAYOUT_LEFT_RIGHT()
+ComposedMessageProcessor(productGenerator, "Order Generator")
+Message(order, "Order")
+Send(productGenerator, order)
+ComposedMessageProcessor(orderEnricherSource, "Order enricher source")
+DataEnricher(de1, Order enricher, orderEnricherSource)
+Message(enrichedOrder, "Enriched order")
+Send(de1, enrichedOrder)
+Send(order, de1)
+ComposedMessageProcessor(orderItemEnricherSource, "Order Item enricher source")
+DataEnricher(de2, Order item enricher, orderItemEnricherSource)
+Message(enrichedOrderItem, "Enriched order item")
+Send(de2, enrichedOrderItem)
+Send(enrichedOrder, de2)
+Aggregator(orderEnrichmentAggregator, "Order enrichment aggregation strategy")
+Aggregator(orderItemEnrichmentAggregator, "Order item enrichment aggregation strategy")
+Send(de1, orderEnrichmentAggregator)
+Send(de2, orderItemEnrichmentAggregator)
+@enduml

@@ -8,34 +8,51 @@ import org.apache.camel.*;
 import java.util.*;
 
 @ApplicationScoped
-@Named("productEnrichmentStrategy")
+@Named("orderItemEnrichmentStrategy")
 public class OrderItemEnrichmentStrategy implements AggregationStrategy
 {
   @Override
   public Exchange aggregate(Exchange original, Exchange enrichment)
   {
-    EnrichedOrder partiallyEnriched = original.getIn().getBody(EnrichedOrder.class);
+    Order order = original.getIn().getBody(Order.class);
     Map<String, ProductDetails> productMap = enrichment.getIn().getBody(Map.class);
-    System.out.println(">>> ProductMap contents:");
-    productMap.forEach((key, value) -> System.out.println("\t" + key + " -> " + value));
-    List<EnrichedOrderItem> fullyEnrichedItems = partiallyEnriched.enrichedItems().stream()
-      .map(item -> {
-        System.out.println (">>> Mapping " + item.orderItem().productId());
-        return new EnrichedOrderItem(
-          item.orderItem(),
-          productMap.get(item.orderItem().productId())
-        );
-      })
+    //
+    // Transform order items to enriched order items:
+    //   find matching product details for each item,
+    //   create EnrichedOrderItem if match found,
+    //   filter out items without matches
+    //
+    List<EnrichedOrderItem> enrichedItems = order.items().stream()
+      .map(item -> findProductDetails(productMap, item.productId())
+        .map(pd -> new EnrichedOrderItem(item, pd)))
+      .filter(Optional::isPresent)
+      .map(Optional::get)
       .toList();
-    System.out.println (">>> Enriched Order Items: " + fullyEnrichedItems.size());
-    fullyEnrichedItems.forEach(eoi -> System.out.println ("\t" + eoi.orderId() + " " + eoi.orderItem().productName() + " " + eoi.productDetails().name()));
     EnrichedOrder fullyEnriched = new EnrichedOrder(
-      partiallyEnriched.order(),
-      partiallyEnriched.customerDetails(),
-      fullyEnrichedItems
+      order.orderId(),
+      order.customerId(),
+      order.shippingAddress(),
+      order.orderDate(),
+      null,
+      enrichedItems
     );
-    System.out.println (">>> Enriched Order: " + fullyEnriched.order().orderId() + " " + fullyEnriched.customerDetails().name() + " " + fullyEnriched.enrichedItems().size());
     original.getIn().setBody(fullyEnriched);
     return original;
+  }
+
+  private Optional<ProductDetails> findProductDetails(Map<String, ProductDetails> productMap, String productId)
+  {
+    //
+    // Extract the product ID prefix
+    //
+    String productPrefix = productId.split("-")[0];
+    //
+    // Returns the `ProductDetails` instance which ket name starts
+    // with the prefix ID prefix.
+    //
+    return productMap.entrySet().stream()
+      .filter(entry -> entry.getKey().startsWith(productPrefix))
+      .map(Map.Entry::getValue)
+      .findFirst();
   }
 }

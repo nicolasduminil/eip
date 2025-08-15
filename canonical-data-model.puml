@@ -1,7 +1,7 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/plantuml-stdlib/EIP-PlantUML/main/dist/EIP-PlantUML.puml
 LAYOUT_LEFT_RIGHT()
-ComposedMessageProcessor(productGenerator, "Product Generator")
+ComposedMessageProcessor(productGenerator, "Order Generator")
 Message(msgElectronics, "Electronics Order")
 Message(msgFashion, "Fashion Order")
 Message(msgBooks, "Books Order")

@@ -17,6 +17,5 @@ public class OrderEnrichmentStrategy implements AggregationStrategy
     EnrichedOrder enrichedOrder = original.getIn().getBody(EnrichedOrder.class);
     CustomerDetails customerDetails = enrichment.getIn().getBody(CustomerDetails.class);
     original.getIn().setBody(enrichedOrder.withCustomerDetails(customerDetails));
-    return original;
-  }
+    return original;  }
 }

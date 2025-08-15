@@ -5,14 +5,4 @@ public record EnrichedOrderItem(
   ProductDetails productDetails
 )
 {
-  public String orderId()
-  {
-    return orderItem.orderId();
-  }
-
-  @Override
-  public OrderItem orderItem()
-  {
-    return orderItem;
-  }
 }
